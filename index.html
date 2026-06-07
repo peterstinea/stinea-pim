@@ -1999,6 +1999,19 @@ async function uploadModalDrawing(){
 }
 
 
+// ── ROLLE STYRING ──
+function applyRole(role){
+  if(role === 'marketing'){
+    document.querySelectorAll('.nav-admin').forEach(el=>el.style.display='none');
+    document.querySelectorAll('.nav-cs').forEach(el=>el.style.display='none');
+    document.body.classList.add('marketing-mode');
+  } else if(role === 'cs'){
+    document.querySelectorAll('.nav-admin').forEach(el=>el.style.display='none');
+    document.querySelectorAll('.nav-cs').forEach(el=>el.style.display='none');
+    document.body.classList.add('cs-mode');
+  }
+}
+
 async function fetchRates(){
   const cached=LS.get('pim-rates-v3');
   if(cached&&Date.now()-cached.ts<3600000){rates=cached.r;silverUSDperGram=cached.ag||2.43;silverHistory=cached.agh||[];renderRateBar();return;}
