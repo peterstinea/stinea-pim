@@ -22,6 +22,17 @@
   --alarm: #c1121f;
   --ok: #3a7d44;
   --warn: #b45309;
+  /* Pastel palette */
+  --pastel-rose: #f7dde0;
+  --pastel-rose-dark: #c4848e;
+  --pastel-lavender: #e8e0f0;
+  --pastel-lavender-dark: #8e7aaa;
+  --pastel-mint: #d8ede8;
+  --pastel-mint-dark: #5a9e8a;
+  --pastel-yellow: #f5f0d8;
+  --pastel-yellow-dark: #a8923a;
+  --pastel-sand: #ede9e3;
+  --pastel-sand-dark: #8a8070;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -65,6 +76,16 @@ button:hover { background: var(--sand); border-color: var(--dark); }
 .btn-dark { background: var(--dark); color: var(--white); border-color: var(--dark); }
 .btn-dark:hover { background: #333; }
 
+/* Pastel buttons */
+.btn-rose { background: var(--pastel-rose); border-color: var(--pastel-rose-dark); color: var(--pastel-rose-dark); }
+.btn-rose:hover { background: #f2c8cc; border-color: var(--pastel-rose-dark); }
+.btn-lavender { background: var(--pastel-lavender); border-color: var(--pastel-lavender-dark); color: var(--pastel-lavender-dark); }
+.btn-lavender:hover { background: #ddd4ec; border-color: var(--pastel-lavender-dark); }
+.btn-mint { background: var(--pastel-mint); border-color: var(--pastel-mint-dark); color: var(--pastel-mint-dark); }
+.btn-mint:hover { background: #c4e4dc; border-color: var(--pastel-mint-dark); }
+.btn-yellow { background: var(--pastel-yellow); border-color: var(--pastel-yellow-dark); color: var(--pastel-yellow-dark); }
+.btn-yellow:hover { background: #ede6c4; border-color: var(--pastel-yellow-dark); }
+
 /* ── LAYOUT ── */
 .app { display: flex; min-height: 100vh; }
 
@@ -77,6 +98,20 @@ button:hover { background: var(--sand); border-color: var(--dark); }
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.main {
+  margin-left: 200px;
+  min-width: 0;
+  width: calc(100% - 200px);
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
 }
 
 .logo {
@@ -116,7 +151,6 @@ button:hover { background: var(--sand); border-color: var(--dark); }
 .nav-item.active { color: var(--dark); font-weight: 500; border-left-color: var(--dark); background: var(--cream); }
 
 /* ── MAIN ── */
-.main { flex: 1; padding: 2rem 2.5rem; overflow-y: auto; }
 
 .page { display: none; }
 .page.active { display: block; }
@@ -154,11 +188,20 @@ button:hover { background: var(--sand); border-color: var(--dark); }
 .filters {
   display: flex;
   gap: 8px;
-  margin-bottom: 1.25rem;
+  margin-bottom: .5rem;
   flex-wrap: wrap;
   align-items: center;
 }
-.filters input { min-width: 220px; }
+.filters input[type="text"] { flex: 1; min-width: 160px; }
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: .5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+}
+.toolbar input[type="text"] { flex: 1; min-width: 160px; }
 
 /* ── PRODUCT GRID ── */
 .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 14px; }
@@ -289,6 +332,7 @@ button:hover { background: var(--sand); border-color: var(--dark); }
 .rate-bar strong { color: var(--dark); }
 
 /* ── IMAGE LIB ── */
+.lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 10px; margin-bottom: 1.5rem; }
 .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 10px; }
 .lib-card {
   background: var(--white);
@@ -413,6 +457,26 @@ a:hover { color: var(--gold); }
   line-height: 1.7;
 }
 #alarm-bar strong { color: var(--alarm); display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+
+/* ── MARKETING MODE ── */
+.marketing-mode .pcard-cost { display: none !important; }
+.marketing-mode .pcard-gm { display: none !important; }
+.marketing-mode .gm-pill { display: none !important; }
+.marketing-mode #alarm-bar { display: none !important; }
+.marketing-mode .gm-alarm { display: none !important; }
+.marketing-mode .alarm { display: none !important; }
+.marketing-mode .silver-alarm { display: none !important; }
+.marketing-mode .stat-gm { display: none !important; }
+
+/* ── KUNDESERVICE MODE ── */
+.cs-mode .pcard-cost { display: none !important; }
+.cs-mode .pcard-gm { display: none !important; }
+.cs-mode .gm-pill { display: none !important; }
+.cs-mode .alarm { display: none !important; }
+.cs-mode .silver-alarm { display: none !important; }
+.cs-mode .pcard-supplier { display: none !important; }
+.cs-mode #s-gm { display: none !important; }
+.cs-mode .stat:has(#s-avg) { display: none !important; }
 </style>
 </head>
 <body onload="init()">
@@ -436,12 +500,12 @@ a:hover { color: var(--gold); }
   <div class="nav-item active" onclick="showPage('products',this)">📦 Produkter</div>
   <div class="nav-item" onclick="showPage('images',this)">🖼️ Billeder</div>
   <div class="nav-sec">Opdater</div>
-  <div class="nav-item" onclick="showPage('catalog',this)">📋 Katalog-builder</div>
-  <div class="nav-item" onclick="showPage('suppliers',this)">🏭 Leverandører</div>
-  <div class="nav-item" onclick="showPage('invoice',this)">📄 Faktura import</div>
-  <div class="nav-item" onclick="showPage('csv',this)">📊 CSV import</div>
+  <div class="nav-item" onclick="showPage('catalog',this)" class="nav-item nav-admin">📋 Katalog-builder</div>
+  <div class="nav-item" onclick="showPage('suppliers',this)" class="nav-item nav-admin">🏭 Leverandører</div>
+  <div class="nav-item" onclick="showPage('invoice',this)" class="nav-item nav-admin nav-cs">📄 Faktura import</div>
+  <div class="nav-item" onclick="showPage('csv',this)" class="nav-item nav-admin nav-cs">📊 CSV import</div>
   <div class="nav-sec">System</div>
-  <div class="nav-item" onclick="showPage('settings',this)">⚙️ Indstillinger</div>
+  <div class="nav-item" onclick="showPage('settings',this)" class="nav-item nav-admin nav-cs">⚙️ Indstillinger</div>
 </aside>
 <main class="main">
 
@@ -450,8 +514,8 @@ a:hover { color: var(--gold); }
   <div class="page-hdr">
     <h2>Produkter</h2>
     <div style="display:flex;gap:8px">
-      <button onclick="openNew()">+ Nyt style</button>
-      <button onclick="exportCSV()">↓ Eksporter</button>
+      <button onclick="openNew()" class="btn-rose">+ Nyt style</button>
+      <button class="btn-yellow" onclick="exportCSV()">↓ Eksporter</button>
     </div>
   </div>
   <div id="alarm-banner" class="alarm" style="display:none;margin-bottom:1rem"></div>
@@ -471,12 +535,12 @@ a:hover { color: var(--gold); }
     <div class="stat"><div class="lbl">Under GM 65%</div><div class="val" id="s-alarm" style="color:#c1121f">0</div></div>
     <div class="stat"><div class="lbl">Gns. GM</div><div class="val" id="s-avg">—</div></div>
     <div class="stat"><div class="lbl">Datafuldstændighed</div><div class="val" id="s-comp">—</div></div>
-    <div class="stat"><div class="lbl">Senest opdateret</div><div class="val" id="s-updated" style="font-size:13px;padding-top:6px">—</div></div>
+    <div class="stat"><div class="lbl">Senest opdateret</div><div class="val" id="s-updated" style="font-size:22px;padding-top:2px">—</div></div>
   </div>
   <div class="alarm" id="gm-alarm"><div class="atitle">⚠ GM under 65% grænse</div><div id="gm-alarm-list"></div></div>
   <div class="silver-alarm" id="ag-alarm"><div class="atitle">🥈 Sølvprisalarm — kostpris afviger fra forventet</div><div id="ag-alarm-list"></div></div>
   <div class="toolbar">
-    <input type="text" id="search" placeholder="Søg style-nr., navn, leverandør..." oninput="renderCards()">
+    <input type="text" id="search" placeholder="Søg style-nr., navn, leverandør..." oninput="renderCards()" style="flex:1;min-width:160px">
     <select id="filter-gm" onchange="renderCards()">
       <option value="all">Alle GM</option>
       <option value="ok">GM ok (≥65%)</option>
@@ -500,7 +564,15 @@ a:hover { color: var(--gold); }
       <option value="THB">THB</option>
     </select>
     <span id="cat-count" style="font-size:12px;color:#9c9893;align-self:center"></span>
+     <select id="filter-extra" onchange="renderCards()">
+       <option value="all">Billede & tegning</option>
+       <option value="drawings">✏ Med tegning</option>
+       <option value="nodrawings">✏ Mangler tegning</option>
+       <option value="photos">📷 Med billede</option>
+       <option value="nophotos">📷 Mangler billede</option>
+     </select>
   </div>
+  <div style="font-size:11px;color:var(--light-text);margin-bottom:1rem;letter-spacing:.02em" id="cat-count-bar"></div>
   <div class="pgrid" id="pgrid"></div>
 </div>
 
@@ -516,9 +588,10 @@ a:hover { color: var(--gold); }
         <option value="Rings">Rings</option>
         <option value="Necklaces">Necklaces</option>
       </select>
-      <button class="btn-dark" onclick="matchAll()">Match alle til PIM</button>
-      <button onclick="toggleDrawingsPanel()">📐 Tegninger</button>
-      <button onclick="toggleUploadPanel()">⬆ Upload billeder</button>
+      <button class="btn-mint" onclick="matchAll()">Match alle til PIM</button>
+      <button class="btn-lavender" onclick="toggleDrawingsPanel()">📐 Tegninger</button>
+      <button class="btn-mint" onclick="toggleUploadPanel()">⬆ Upload billeder</button>
+      <button class="btn-yellow" onclick="toggleUnmatchedPanel()">⚠ Ikke matchede</button>
     </div>
   </div>
   <div id="img-stats" style="font-size:13px;color:#6b6762;margin-bottom:1rem"></div>
@@ -543,16 +616,24 @@ a:hover { color: var(--gold); }
     <progress id="upload-progress" value="0" max="100" style="width:100%;display:none;margin-bottom:.5rem"></progress>
     <div id="upload-log" style="max-height:200px;overflow-y:auto;font-size:12px;font-family:monospace;background:#f0eeeb;padding:8px;border-radius:6px;display:none"></div>
   </div>
+  <div id="unmatched-section" style="display:none;margin-bottom:1.5rem">
+    <div class="card">
+      <div style="font-size:13px;font-weight:500;margin-bottom:.75rem">⚠ Billeder uden match i PIM</div>
+      <p style="font-size:12px;color:var(--light-text);margin-bottom:1rem">Disse billeder er i Cloudinary men matches ikke til en aktiv style. Klik på et billede for at koble det til en style manuelt.</p>
+      <div id="unmatched-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px"></div>
+    </div>
+  </div>
+
   <div id="drawings-section" style="display:none;margin-bottom:1.5rem;padding:1rem;background:#f5f4f1;border-radius:10px">
     <div style="font-size:13px;font-weight:500;margin-bottom:.5rem">📐 Tegninger — 585 filer fra "Design Style Sheet"</div>
     <p style="font-size:12px;color:#6b6762;margin-bottom:.75rem">Klik "Indlæs & auto-match" for at koble tegninger til styles automatisk baseret på style-nummer i filnavnet.</p>
     <div style="display:flex;gap:8px;margin-bottom:.75rem">
-      <button class="btn-dark" onclick="importDrawings()">⬆ Indlæs & auto-match</button>
+      <button class="btn-lavender" onclick="importDrawings()">⬆ Indlæs & auto-match</button>
       <span id="drawings-count" style="font-size:12px;color:#6b6762;align-self:center"></span>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:.5rem">
       <input type="text" id="drawing-search" placeholder="Søg på style-nr eller navn..." onkeydown="if(event.key==='Enter')filterDrawings()" style="flex:1;padding:6px 10px;border:1px solid #d8d4cf;border-radius:6px;font-size:13px">
-      <button onclick="filterDrawings()">Søg</button>
+      <button class="btn-lavender" onclick="filterDrawings()">Søg</button>
     </div>
     <div id="drawings-list" style="max-height:350px;overflow-y:auto"></div>
   </div>
@@ -574,9 +655,9 @@ a:hover { color: var(--gold); }
   <div class="page-hdr">
     <h2>Katalog-builder</h2>
     <div style="display:flex;gap:8px">
-      <button class="btn-dark" onclick="generateCatalogPDF()">📄 Generer PDF</button>
-      <button onclick="selectAllCatalog(true)">Vælg alle</button>
-      <button onclick="selectAllCatalog(false)">Fravælg alle</button>
+      <button class="btn-rose" onclick="generateCatalogPDF()">📄 Generer PDF</button>
+      <button onclick="selectAllCatalog(true)" class="btn-yellow">Vælg alle</button>
+      <button class="btn-yellow" onclick="selectAllCatalog(false)">Fravælg alle</button>
     </div>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
@@ -614,7 +695,7 @@ a:hover { color: var(--gold); }
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <input type="file" id="invoice-file" accept=".pdf,.xlsx,.xls,.csv" style="flex:1;font-size:13px">
-      <button class="btn-dark" onclick="processInvoiceFile()">⬆ Indlæs CSV</button>
+      <button class="btn-mint" onclick="processInvoiceFile()">⬆ Indlæs CSV</button>
     </div>
     <div id="invoice-file-result" style="font-size:12px;color:#6b6762;margin-top:.5rem"></div>
   </div>
@@ -626,7 +707,7 @@ a:hover { color: var(--gold); }
       <label>Faktura-data</label>
       <textarea id="invoice-txt" style="min-height:140px;font-family:monospace;font-size:13px" placeholder="1004-02-S, 4.19, USD&#10;3192-02-OS, 17.41, USD"></textarea>
     </div>
-    <button class="btn-dark" onclick="processInvoice()">Opdater priser</button>
+    <button class="btn-dark" class="btn-mint" onclick="processInvoice()">Opdater priser</button>
     <div id="invoice-result"></div>
   </div>
   <div class="card" style="max-width:700px;margin-top:1rem">
@@ -646,7 +727,7 @@ a:hover { color: var(--gold); }
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn-dark" onclick="processCSV()">Importer styles</button>
-      <button onclick="dlTemplate()">↓ Download skabelon</button>
+      <button class="btn-yellow" onclick="dlTemplate()">↓ Download skabelon</button>
     </div>
     <div id="csv-result" style="font-size:13px;margin-top:.75rem"></div>
   </div>
@@ -663,17 +744,17 @@ a:hover { color: var(--gold); }
     <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid #d8d4cf">
       <p class="hint" style="margin-bottom:.75rem">Data gemmes lokalt i din browser. Eksporter for at tage backup eller flytte data til en ny version.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem">
-        <button onclick="manualSync()">☁ Synkroniser nu</button>
+        <button onclick="manualSync()" class="btn-mint">☁ Synkroniser nu</button>
         <span id="sync-status-settings" style="font-size:12px;color:#9c9893"></span>
         <div style="font-size:12px;color:#9c9893;margin-top:.5rem">
           ☁ <strong>Data</strong> — synkroniseres automatisk ved opstart og lukning<br>
           🖼 <strong>Billedlister</strong> — sidst opdateret: <strong id="img-list-date"></strong> · opdateres ved at sende nye ZIP-filer til chat
         </div>
         <button class="btn-dark" onclick="exportAllData()">⬇ Eksporter alle data</button>
-        <button onclick="document.getElementById('import-file').click()">⬆ Importer data</button>
-        <button onclick="exportB2CPricelist()">📊 Eksporter B2C prisliste (Excel)</button>
-        <button onclick="exportB2BPricelist()">📊 Eksporter B2B prisliste (Excel)</button>
-        <button onclick="exportB2BCatalog()">📄 Eksporter B2B katalog (PDF)</button>
+        <button class="btn-mint" onclick="document.getElementById('import-file').click()">⬆ Importer data</button>
+        <button class="btn-lavender" onclick="exportB2CPricelist()">📊 Eksporter B2C prisliste (Excel)</button>
+        <button class="btn-lavender" onclick="exportB2BPricelist()">📊 Eksporter B2B prisliste (Excel)</button>
+        <button class="btn-rose" onclick="exportB2BCatalog()">📄 Eksporter B2B katalog (PDF)</button>
         <input type="file" id="import-file" accept=".json" style="display:none" onchange="importAllData(this)">
       </div>
       <p style="font-size:11px;color:#9c9893;margin-bottom:1.5rem">Eksporter gemmer produkter, billeder og indstillinger som én JSON-fil.</p>
@@ -688,11 +769,17 @@ a:hover { color: var(--gold); }
 <!-- PRODUCT MODAL -->
 <div class="modal-overlay" id="modal">
 <div class="modal">
-  <h3 id="modal-title">Nyt style</h3>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)">
+    <h3 id="modal-title" style="margin:0;padding:0;border:none;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;letter-spacing:.06em">Nyt style</h3>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeModal()" style="font-size:12px;padding:6px 16px;color:var(--mid)">Annuller</button>
+      <button class="btn-dark" onclick="saveProduct()" style="font-size:12px;padding:6px 16px">Gem</button>
+    </div>
+  </div>
   <div class="mgrid">
     <div class="field"><label>Style-nr. *</label><input type="text" id="f-id"></div>
     <div class="field"><label>Navn</label><input type="text" id="f-name"></div>
-    <div class="field"><label>Leverandør</label><input type="text" id="f-sup"></div>
+    <div class="field pcard-supplier"><label>Leverandør</label><input type="text" id="f-sup"></div>
     <div class="field"><label>Sæson</label><input type="text" id="f-season"></div>
     <div class="field"><label>Kategori</label>
       <select id="f-cat">
@@ -715,8 +802,29 @@ a:hover { color: var(--gold); }
     <div class="field"><label>Salgspris B2B EUR</label><input type="number" id="f-sell-b2b-eur" step="0.01"></div>
     <div class="field"><label>Vægt (g)</label><input type="number" id="f-weight"></div>
     <div class="field full"><label>Mål</label><input type="text" id="f-dims" placeholder="20x3x3 cm"></div>
-    <div class="field full"><label>Foto URL(er) — én per linje</label><textarea id="f-photos" style="min-height:60px;font-size:12px;font-family:monospace"></textarea></div>
-    <div class="field full"><label>Tegning URL(er)</label><input type="text" id="f-drawings"></div>
+    <div class="field full"><label>Foto URL(er) — én per linje</label><textarea id="f-photos" style="min-height:60px;font-size:12px;font-family:monospace"></textarea>
+      <div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--light-text)">Upload nyt foto:</span>
+        <select id="f-photo-folder" style="font-size:11px;padding:3px 6px">
+          <option value="Earrings">Earrings</option>
+          <option value="Bracelets">Bracelets</option>
+          <option value="Rings">Rings</option>
+          <option value="Chains and Pendants">Chains and Pendants</option>
+          <option value="Love Boxes">Love Boxes</option>
+        </select>
+        <input type="file" id="f-photo-file" accept=".jpg,.jpeg,.png" style="font-size:11px;flex:1">
+        <button class="btn-mint" onclick="uploadModalPhoto()" style="font-size:11px;padding:4px 10px">⬆ Upload</button>
+        <span id="f-photo-status" style="font-size:11px;color:var(--light-text)"></span>
+      </div>
+    </div>
+    <div class="field full"><label>Tegning URL(er)</label><input type="text" id="f-drawings">
+      <div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--light-text)">Upload ny tegning (PDF):</span>
+        <input type="file" id="f-drawing-file" accept=".pdf" style="font-size:11px;flex:1">
+        <button class="btn-lavender" onclick="uploadModalDrawing()" style="font-size:11px;padding:4px 10px">⬆ Upload</button>
+        <span id="f-drawing-status" style="font-size:11px;color:var(--light-text)"></span>
+      </div>
+    </div>
     <div class="field full"><label>Noter / farve</label><textarea id="f-notes" style="min-height:50px"></textarea></div>
     <div class="sec-label">Tekniske specifikationer</div>
     <div class="field"><label>Sølvvægt krop (g)</label><input type="number" id="f-ag-body" step="0.001"></div>
@@ -959,7 +1067,10 @@ function logout(){
 
 
 function checkLogin(){
-  const users = ['peter','susanne','lucca','stine'];
+  const ADMIN_USERS = ['peter','susanne'];
+  const CS_USERS = ['lucca'];
+  const MARKETING_USERS = ['stine','marketing'];
+  const users = [...ADMIN_USERS, ...CS_USERS, ...MARKETING_USERS];
   const user = document.getElementById('login-user').value.trim().toLowerCase();
   const pw = document.getElementById('login-pw').value;
   const remember = document.getElementById('login-remember').checked;
@@ -969,6 +1080,8 @@ function checkLogin(){
     sessionStorage.setItem('pim-auth','1');
     const displayName = user.charAt(0).toUpperCase()+user.slice(1);
     sessionStorage.setItem('pim-user', displayName);
+    const role = ADMIN_USERS.includes(user) ? 'admin' : CS_USERS.includes(user) ? 'cs' : 'marketing';
+    sessionStorage.setItem('pim-role', role);
     if(remember){
       localStorage.setItem('pim-remember-user', user);
       localStorage.setItem('pim-remember-pw', pw);
@@ -1018,8 +1131,12 @@ async function init(){
 
 async function _init(){
   const u = sessionStorage.getItem('pim-user')||'';
+  const role = sessionStorage.getItem('pim-role')||'admin';
   const cu = document.getElementById('current-user');
-  if(cu && u) cu.textContent = '👤 '+u;
+  if(cu && u) cu.textContent = '👤 '+u+(role==='marketing'?' · Marketing':role==='cs'?' · Kundeservice':'');
+  
+  // Apply role restrictions
+  applyRole(role);
   const s=LS.get('pim-settings'); if(s) Object.assign(settings,s);
   
   // Try Cloudinary sync first
@@ -1743,7 +1860,145 @@ function renderActivityLog(){
   }).join('');
 }
 
-// ── RATES & SILVER ──
+
+// ── IKKE MATCHEDE BILLEDER ──
+function toggleUnmatchedPanel(){
+  const s = document.getElementById('unmatched-section');
+  s.style.display = s.style.display === 'none' ? 'block' : 'none';
+  if(s.style.display === 'block') renderUnmatched();
+}
+
+function renderUnmatched(){
+  const unmatched = imgLib.filter(x=>
+    !products.some(p=>
+      p.id.toLowerCase()===x.sid.toLowerCase() ||
+      p.id.toLowerCase().startsWith(x.sid.toLowerCase()+'-')
+    )
+  );
+  
+  const grid = document.getElementById('unmatched-grid');
+  if(!unmatched.length){
+    grid.innerHTML='<p style="color:var(--ok);font-size:12px">✓ Alle billeder er matchet til styles!</p>';
+    return;
+  }
+  
+  grid.innerHTML = unmatched.map(item=>{
+    const url = imgUrl(item.f, item.fmt||'jpg');
+    return `<div style="background:var(--white);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+      <img src="${url}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--cream)" onerror="this.style.display='none'">
+      <div style="padding:8px">
+        <div style="font-size:10px;color:var(--light-text);margin-bottom:2px">${item.folder}</div>
+        <div style="font-size:10px;font-weight:500;margin-bottom:6px;word-break:break-all;color:var(--mid)">${item.f.replace(/_[a-z0-9]{6}$/i,'')}</div>
+        <input type="text" id="link_${item.f.replace(/[^a-z0-9]/gi,'_')}" placeholder="Style-nr." style="width:100%;font-size:11px;padding:4px 6px;margin-bottom:4px">
+        <button class="btn-mint" onclick="linkUnmatched('${item.f}','${item.folder}')" style="width:100%;font-size:11px;padding:4px 8px">Kobl til style</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function linkUnmatched(filename, folder){
+  const key = filename.replace(/[^a-z0-9]/gi,'_');
+  const styleId = document.getElementById('link_'+key)?.value.trim().toUpperCase();
+  if(!styleId){ alert('Indtast et style-nr.'); return; }
+  
+  const p = products.find(x=>x.id.toUpperCase()===styleId);
+  if(!p){ alert('Style '+styleId+' ikke fundet i PIM'); return; }
+  
+  // Update imgLib sid for this file
+  const item = imgLib.find(x=>x.f===filename);
+  if(item){
+    item.sid = styleId;
+    // Also update product photos
+    const url = imgUrl(filename, item.fmt||'jpg');
+    if(!p.photos) p.photos = url;
+    else if(!p.photos.includes(url)) p.photos += '\n' + url;
+    LS.set('pim-imgs-v3', imgLib);
+    LS.set('pim-v3', products);
+    renderUnmatched();
+    renderImgLib();
+    alert('✓ '+filename+' koblet til '+styleId);
+  }
+}
+
+// ── MODAL FOTO/TEGNING UPLOAD ──
+async function uploadModalPhoto(){
+  const styleId = document.getElementById('f-id').value.trim();
+  if(!styleId){ alert('Udfyld Style-nr. først — billedet navngives efter style-nummeret'); return; }
+  const file = document.getElementById('f-photo-file').files[0];
+  const folder = document.getElementById('f-photo-folder').value;
+  const status = document.getElementById('f-photo-status');
+  if(!file){ alert('Vælg en fil først'); return; }
+  status.textContent = '⏳ Uploader...';
+  
+  const name = file.name.replace(/\.[^.]+$/, '');
+  const ts = Math.floor(Date.now()/1000);
+  const sigStr = `access_mode=public&folder=${folder}&public_id=${name}&timestamp=${ts}${API_SECRET_KEY}`;
+  const sigBuf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(sigStr));
+  const sig = Array.from(new Uint8Array(sigBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('api_key', '788197652622694');
+  fd.append('timestamp', ts);
+  fd.append('signature', sig);
+  fd.append('folder', folder);
+  fd.append('public_id', name);
+  fd.append('access_mode', 'public');
+  
+  try {
+    const r = await fetch(`https://api.cloudinary.com/v1_1/${settings.cloudName||'dltxhgyae'}/image/upload`, {method:'POST',body:fd});
+    const d = await r.json();
+    if(d.secure_url){
+      const ta = document.getElementById('f-photos');
+      ta.value = ta.value ? ta.value + '\n' + d.secure_url : d.secure_url;
+      status.textContent = '✓ Uploadet';
+      // Add to imgLib
+      const sid = extractStyleId(name);
+      if(!imgLib.find(x=>x.f===name)) imgLib.push({f:name, folder, sid});
+      LS.set('pim-imgs-v3', imgLib);
+    } else {
+      status.textContent = '✗ ' + (d.error?.message||'Fejl');
+    }
+  } catch(e){ status.textContent = '✗ ' + e.message; }
+}
+
+async function uploadModalDrawing(){
+  const styleId = document.getElementById('f-id').value.trim();
+  if(!styleId){ alert('Udfyld Style-nr. først — tegningen navngives efter style-nummeret'); return; }
+  const file = document.getElementById('f-drawing-file').files[0];
+  const status = document.getElementById('f-drawing-status');
+  if(!file){ alert('Vælg en PDF fil'); return; }
+  status.textContent = '⏳ Uploader...';
+  
+  const name = file.name.replace(/\.pdf$/i, '');
+  const ts = Math.floor(Date.now()/1000);
+  const sigStr = `overwrite=true&public_id=${name}&timestamp=${ts}${API_SECRET_KEY}`;
+  const sigBuf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(sigStr));
+  const sig = Array.from(new Uint8Array(sigBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('api_key', '788197652622694');
+  fd.append('timestamp', ts);
+  fd.append('signature', sig);
+  fd.append('public_id', name);
+  fd.append('overwrite', 'true');
+  
+  try {
+    const r = await fetch(`https://api.cloudinary.com/v1_1/${settings.cloudName||'dltxhgyae'}/auto/upload`, {method:'POST',body:fd});
+    const d = await r.json();
+    if(d.secure_url){
+      const url = `https://res.cloudinary.com/${settings.cloudName||'dltxhgyae'}/image/upload/${name}.pdf`;
+      const inp = document.getElementById('f-drawings');
+      inp.value = inp.value ? inp.value + '\n' + url : url;
+      status.textContent = '✓ Uploadet';
+    } else {
+      status.textContent = '✗ ' + (d.error?.message||'Fejl');
+    }
+  } catch(e){ status.textContent = '✗ ' + e.message; }
+}
+
+
 async function fetchRates(){
   const cached=LS.get('pim-rates-v3');
   if(cached&&Date.now()-cached.ts<3600000){rates=cached.r;silverUSDperGram=cached.ag||2.43;silverHistory=cached.agh||[];renderRateBar();return;}
@@ -1841,11 +2096,16 @@ function filteredProducts(){
   const gf=document.getElementById('filter-gm').value;
   const cf=document.getElementById('filter-cat').value;
   const vf=document.getElementById('filter-cur').value;
+  const ef=document.getElementById('filter-extra')?.value||'all';
   return products.filter(p=>{
     if(q&&!(p.id+p.name+(p.supplier||'')).toLowerCase().includes(q))return false;
     if(cf==='active'&&(p.category==='udgaaet'||p.category==='under-udvikling'))return false;
     if(cf!=='all'&&cf!=='active'&&p.category!==cf)return false;
     if(vf!=='all'&&p.cur!==vf)return false;
+    if(ef==='drawings'&&!p.drawings)return false;
+    if(ef==='nodrawings'&&p.drawings)return false;
+    if(ef==='photos'&&!p.photos)return false;
+    if(ef==='nophotos'&&p.photos)return false;
     if(gf!=='all'){
       const gm=calcGM(p);
       if(gf==='ok'&&!(gm>=settings.gmLimit))return false;
@@ -1866,14 +2126,16 @@ function renderCards(){
   const list=filteredProducts();
   const cf=document.getElementById('filter-cat').value;
   const countEl=document.getElementById('cat-count');
-  if(countEl){
+  if(countEl) countEl.textContent='';
+  const countBar=document.getElementById('cat-count-bar');
+  if(countBar){
     if(cf==='active'||cf==='all'){
       const cats={};
       list.forEach(p=>{cats[p.category]=(cats[p.category]||0)+1;});
-      const bd=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>cat+': '+n).join(' · ');
-      countEl.textContent=list.length+' styles · '+bd;
+      const bd=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>cat+': '+n).join('  ·  ');
+      countBar.textContent=list.length+' styles  ·  '+bd;
     } else {
-      countEl.textContent=list.length+' styles';
+      countBar.textContent=list.length+' styles';
     }
   }
   if(!list.length){grid.innerHTML='<p style="color:#6b6762;grid-column:1/-1">Ingen styles matcher.</p>';return;}
@@ -1902,11 +2164,11 @@ function renderCards(){
         <div class="pcard-meta">${p.id} · ${p.season||''} · ${p.category||''}</div>
         <div class="pcard-name">${p.name||'—'}</div>
         <div class="pcard-prices">
-          <div><span>Kost</span><span>${p.cur} ${p.cost} ≈ DKK ${costDKK}</span></div>
+          <div class="pcard-cost"><span>Kost</span><span>${p.cur} ${p.cost} ≈ DKK ${costDKK}</span></div>
           <div><span>B2C DKK</span><span>${p.sellDKK||'—'}</span></div>
           ${p.sellB2BDKK?`<div><span>B2B DKK</span><span>${p.sellB2BDKK}</span></div>`:''}
         </div>
-        <span class="gm-pill ${gmCls(gm)}">GM ${gmStr}</span>
+        <span class="pcard-gm"><span class="gm-pill ${gmCls(gm)}">GM ${gmStr}</span></span>
         ${isUd?'<span class="badge badge-ud">Udgået</span>':''}
         ${isDev?'<span class="badge badge-dev">🔧 Under udv.</span>':''}
         <span style="font-size:10px;margin-left:6px;color:${compColor};font-weight:500" title="Datafuldstændighed: ${comp.pct}%\nMangler: ${comp.missing.join(', ')||'Alt udfyldt'}">◉ ${comp.pct}%</span>
