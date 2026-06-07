@@ -99,7 +99,10 @@ button:hover{background:#eeecea}
     <div style="font-size:28px;font-weight:300;letter-spacing:6px;text-transform:uppercase;margin-bottom:8px">Stine A</div>
     <div style="font-size:12px;color:#9c9893;letter-spacing:2px;margin-bottom:32px">PIM SYSTEM</div>
     <input type="text" id="login-user" placeholder="Brugernavn" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()" style="width:100%;padding:12px 16px;border:1px solid #d8d4cf;border-radius:8px;font-size:14px;margin-bottom:8px;outline:none">
-    <input type="password" id="login-pw" placeholder="Adgangskode" onkeydown="if(event.key==='Enter')checkLogin()" style="width:100%;padding:12px 16px;border:1px solid #d8d4cf;border-radius:8px;font-size:14px;margin-bottom:12px;outline:none">
+    <input type="password" id="login-pw" placeholder="Adgangskode" onkeydown="if(event.key==='Enter')checkLogin()" style="width:100%;padding:12px 16px;border:1px solid #d8d4cf;border-radius:8px;font-size:14px;margin-bottom:8px;outline:none">
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#6b6762;margin-bottom:12px;cursor:pointer">
+      <input type="checkbox" id="login-remember"> Husk mig
+    </label>
     <button onclick="checkLogin()" style="width:100%;padding:12px;background:#2d2926;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">Log ind</button>
     <div id="login-error" style="font-size:12px;color:#c1121f;margin-top:8px;display:none">Forkert adgangskode</div>
   </div>
@@ -136,6 +139,7 @@ button:hover{background:#eeecea}
     <div class="rate-bar" id="rate-bar" style="margin-bottom:0;flex:1">Indlæser kurser...</div>
     <div style="display:flex;align-items:center;gap:12px">
       <span id="current-user" style="font-size:12px;color:#9c9893"></span>
+      <button onclick="logout()" style="font-size:11px;padding:3px 10px;background:none;border:1px solid #d8d4cf;border-radius:6px;cursor:pointer;color:#6b6762">Log ud</button>
       <div id="sync-status" style="font-size:11px;color:#9c9893;padding:4px 12px;white-space:nowrap"></div>
     </div>
   </div>
@@ -158,8 +162,8 @@ button:hover{background:#eeecea}
       <option value="bad">Alarm (&lt;55%)</option>
     </select>
     <select id="filter-cat" onchange="renderCards()">
-      <option value="all">Alle kategorier</option>
-      <option value="bracelets">Bracelets</option>
+       <option value="active">Alle aktive</option>
+       <option value="all">Alle kategorier</option>
       <option value="necklaces">Necklaces</option>
       <option value="rings">Rings</option>
       <option value="earrings">Earrings</option>
@@ -173,6 +177,7 @@ button:hover{background:#eeecea}
       <option value="EUR">EUR</option>
       <option value="THB">THB</option>
     </select>
+    <span id="cat-count" style="font-size:12px;color:#9c9893;align-self:center"></span>
   </div>
   <div class="pgrid" id="pgrid"></div>
 </div>
@@ -617,18 +622,41 @@ function autoMatch(){
   return matched;
 }
 
+function logout(){
+  sessionStorage.removeItem('pim-auth');
+  sessionStorage.removeItem('pim-user');
+  localStorage.removeItem('pim-remember-user');
+  localStorage.removeItem('pim-remember-pw');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pw').value = '';
+  document.getElementById('login-remember').checked = false;
+  setTimeout(()=>document.getElementById('login-user').focus(), 100);
+}
+
+
 function checkLogin(){
   const users = ['peter','susanne','lucca','stine'];
   const user = document.getElementById('login-user').value.trim().toLowerCase();
   const pw = document.getElementById('login-pw').value;
+  const remember = document.getElementById('login-remember').checked;
   if(users.includes(user) && pw === 'pim2026'){
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     sessionStorage.setItem('pim-auth','1');
-    sessionStorage.setItem('pim-user', user.charAt(0).toUpperCase()+user.slice(1));
+    const displayName = user.charAt(0).toUpperCase()+user.slice(1);
+    sessionStorage.setItem('pim-user', displayName);
+    if(remember){
+      localStorage.setItem('pim-remember-user', user);
+      localStorage.setItem('pim-remember-pw', pw);
+    } else {
+      localStorage.removeItem('pim-remember-user');
+      localStorage.removeItem('pim-remember-pw');
+    }
     // Log login
     const log = JSON.parse(localStorage.getItem('pim-log')||'[]');
-    log.unshift({user: user.charAt(0).toUpperCase()+user.slice(1), action:'Loggede ind', ts: new Date().toISOString()});
+    log.unshift({user: displayName, action:'Loggede ind', ts: new Date().toISOString()});
     if(log.length>100) log.pop();
     localStorage.setItem('pim-log', JSON.stringify(log));
     _init();
@@ -638,12 +666,31 @@ function checkLogin(){
 }
 
 async function init(){
+  // Check remembered login
+  const remUser = localStorage.getItem('pim-remember-user');
+  const remPw = localStorage.getItem('pim-remember-pw');
+  if(remUser && remPw === 'pim2026'){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    sessionStorage.setItem('pim-auth','1');
+    sessionStorage.setItem('pim-user', remUser.charAt(0).toUpperCase()+remUser.slice(1));
+    await _init();
+    return;
+  }
+  // Check session login
   if(sessionStorage.getItem('pim-auth')==='1'){
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     await _init();
   } else {
-    setTimeout(()=>document.getElementById('login-pw').focus(), 100);
+    // Pre-fill remembered username
+    if(remUser) {
+      document.getElementById('login-user').value = remUser;
+      document.getElementById('login-remember').checked = true;
+      setTimeout(()=>document.getElementById('login-pw').focus(), 100);
+    } else {
+      setTimeout(()=>document.getElementById('login-user').focus(), 100);
+    }
   }
 }
 
@@ -1460,7 +1507,8 @@ function filteredProducts(){
   const vf=document.getElementById('filter-cur').value;
   return products.filter(p=>{
     if(q&&!(p.id+p.name+(p.supplier||'')).toLowerCase().includes(q))return false;
-    if(cf!=='all'&&p.category!==cf)return false;
+    if(cf==='active'&&(p.category==='udgaaet'||p.category==='under-udvikling'))return false;
+    if(cf!=='all'&&cf!=='active'&&p.category!==cf)return false;
     if(vf!=='all'&&p.cur!==vf)return false;
     if(gf!=='all'){
       const gm=calcGM(p);
@@ -1480,6 +1528,18 @@ function getPhotos(p){
 function renderCards(){
   const grid=document.getElementById('pgrid');
   const list=filteredProducts();
+  const cf=document.getElementById('filter-cat').value;
+  const countEl=document.getElementById('cat-count');
+  if(countEl){
+    if(cf==='active'||cf==='all'){
+      const cats={};
+      list.forEach(p=>{cats[p.category]=(cats[p.category]||0)+1;});
+      const bd=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>cat+': '+n).join(' · ');
+      countEl.textContent=list.length+' styles · '+bd;
+    } else {
+      countEl.textContent=list.length+' styles';
+    }
+  }
   if(!list.length){grid.innerHTML='<p style="color:#6b6762;grid-column:1/-1">Ingen styles matcher.</p>';return;}
   grid.innerHTML=list.map(p=>{
     const gm=calcGM(p);
